@@ -3,15 +3,14 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.park.parkinglot.servlet;
+package com.park.parkinglot.servlet.cars;
 
-import com.park.parkinglot.common.CarDetails;
+import com.park.parkinglot.common.UserDetails;
 import com.park.parkinglot.ejb.CarBean;
+import com.park.parkinglot.ejb.UserBean;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.security.DeclareRoles;
 import javax.inject.Inject;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.HttpConstraint;
@@ -25,34 +24,26 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Andreea Purta
  */
-@DeclareRoles({"AdminRole", "ClientRole"})
-@ServletSecurity(
-        value = @HttpConstraint(
-                rolesAllowed = {"AdminRole"})
-)
+@WebServlet(name = "AddCar", urlPatterns = {"/Cars/Create"})
+@ServletSecurity(value = @HttpConstraint(rolesAllowed={"AdminRole"}))
 
-@WebServlet(name = "Cars", urlPatterns = {"/Cars"})
-public class Cars extends HttpServlet {
-
+public class AddCar extends HttpServlet {
     @Inject
-    private CarBean carBean;
+    UserBean userBean;
+    
+    @Inject
+    CarBean carBean;
 
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet Cars</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet Cars at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
+    /**
+     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
+     * methods.
+     *
+     * @param request servlet request
+     * @param response servlet response
+     * @throws ServletException if a servlet-specific error occurs
+     * @throws IOException if an I/O error occurs
+     */
+  
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -66,11 +57,10 @@ public class Cars extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.setAttribute("activePage", "Cars");
-        request.setAttribute("numberOfFreeParkingSpots", 10);
-        List<CarDetails> cars = carBean.getAllCars();
-        request.setAttribute("cars", cars);
-        request.getRequestDispatcher("/WEB-INF/pages/cars.jsp").forward(request, response);
+        List<UserDetails> users=userBean.getAllUsers();
+        request.setAttribute("users", users);
+        request.getRequestDispatcher("/WEB-INF/pages/car/addCar.jsp").forward(request, response);
+        //processRequest(request, response);
     }
 
     /**
@@ -84,16 +74,13 @@ public class Cars extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String[] carIdsString = request.getParameterValues("car_ids");
-        if (carIdsString != null) {
-            List<Integer> carIds = new ArrayList<>();
-            for (String id : carIdsString) {
-                carIds.add(Integer.parseInt(id));
-            }
-            carBean.deleteCarsByIds(carIds);
-        }
+        String licensePlate=request.getParameter("license_plate");
+        String parkingSpot=request.getParameter("parking_spot");
+        int ownerId=Integer.parseInt(request.getParameter("owner_id"));
+        
+        carBean.createCar(licensePlate, parkingSpot, ownerId);
         response.sendRedirect(request.getContextPath() + "/Cars");
+        
     }
 
     /**
@@ -103,7 +90,7 @@ public class Cars extends HttpServlet {
      */
     @Override
     public String getServletInfo() {
-        return "Short description";
+        return "AddCar v1.0";
     }// </editor-fold>
 
 }

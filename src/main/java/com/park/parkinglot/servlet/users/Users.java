@@ -3,11 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.park.parkinglot.servlet;
+package com.park.parkinglot.servlet.users;
 
+import com.park.parkinglot.common.UserDetails;
+import com.park.parkinglot.ejb.UserBean;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.List;
+import javax.inject.Inject;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.HttpConstraint;
+import javax.servlet.annotation.ServletSecurity;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,8 +23,9 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author Andreea Purta
  */
-@WebServlet(name = "Login", urlPatterns = {"/Login"})
-public class Login extends HttpServlet {
+@ServletSecurity(value = @HttpConstraint(rolesAllowed={"AdminRole","ClientRole"}))
+@WebServlet(name = "Users", urlPatterns = {"/Users"})
+public class Users extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -29,7 +36,11 @@ public class Login extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-
+    
+    @Inject
+    private UserBean userBean;
+    
+ 
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -43,7 +54,12 @@ public class Login extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
+        request.setAttribute("activePage","Users");
+        
+        List<UserDetails> users= userBean.getAllUsers();
+        request.setAttribute("users", users);
+        
+        request.getRequestDispatcher("/WEB-INF/pages/user/users.jsp").forward(request, response);
     }
 
     /**
@@ -57,9 +73,7 @@ public class Login extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-                request.setAttribute("message", "Username or password incorrect");
-                request.getRequestDispatcher("/WEB-INF/pages/login.jsp").forward(request, response);
-    }
+           }
 
     /**
      * Returns a short description of the servlet.

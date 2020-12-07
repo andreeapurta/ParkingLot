@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.logging.Logger;
 import javax.ejb.EJBException;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.New;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
@@ -46,5 +47,16 @@ public class UserBean {
             detailsList.add(userDetails);
         }
         return detailsList;
+    }
+    
+    public void createUser(String username, String email, String passwordSha256, String position)
+    {
+        User user = new User();
+        user.setUsername(username);
+        user.setEmail(email);
+        user.setPassword(position);
+        user.setPassword(passwordSha256);
+        user.setPosition(position);
+        em.persist(user);
     }
 }
