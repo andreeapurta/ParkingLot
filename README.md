@@ -1,1 +1,2 @@
-# ParkingLot - java web app - basic crud - university project
+# ParkingLot
+Description: java web app - basic crud - university project
